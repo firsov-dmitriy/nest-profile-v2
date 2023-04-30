@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { cryptPassword } from './utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -13,24 +13,7 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
   async create(createUserDto: CreateUserDto) {
-    const user = await this.usersRepository.findBy({
-      email: createUserDto.email,
-    });
-    if (user.length === 0) {
-      const password = await cryptPassword(createUserDto.password);
-      const createdUser = await this.usersRepository.create({
-        ...createUserDto,
-      });
-      try {
-        await this.usersRepository.insert({ ...createdUser, password });
-      } catch (err) {
-        console.error(err);
-      }
-
-      return createdUser;
-    }
-
-    return 'This user already exists ';
+    return 'tt';
   }
 
   async findAll() {
@@ -47,25 +30,7 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.usersRepository.findOne({ where: { id } });
-
-    if (user) {
-      const password = await cryptPassword(updateUserDto.password);
-      const createdUser = await this.usersRepository.create({
-        ...updateUserDto,
-      });
-      try {
-        await this.usersRepository.update(user.id, {
-          ...updateUserDto,
-          password,
-        });
-      } catch (err) {
-        console.error(err);
-      }
-
-      return createdUser;
-    }
-    return 'User not found';
+    return 'ttt';
   }
 
   remove(id: number) {
