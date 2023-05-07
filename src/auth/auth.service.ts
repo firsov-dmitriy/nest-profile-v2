@@ -1,23 +1,23 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { ResetPasswordAuth } from './dto/reset-password-auth';
-import { Repository } from 'typeorm';
 import { User } from './entities/auth.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { checkPassword, cryptPassword } from './utils';
 import { JwtService } from '@nestjs/jwt';
 import nodemailer from 'nodemailer';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectModel(User.name)
+    private usersRepository: Model<User>,
     private jwtService: JwtService,
   ) {}
 
   async register(registerAuthDto: RegisterAuthDto) {
-    const user = await this.usersRepository.findBy({
+    const user = await this.usersRepository.find({
       email: registerAuthDto.email,
     });
     if (user.length === 0) {
@@ -26,7 +26,7 @@ export class AuthService {
         ...registerAuthDto,
       });
       try {
-        await this.usersRepository.insert({ ...createdUser, password });
+        await this.usersRepository.create({ ...createdUser, password });
       } catch (err) {
         console.error(err);
       }

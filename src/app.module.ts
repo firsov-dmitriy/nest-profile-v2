@@ -2,23 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { User } from './auth/entities/auth.entity';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT) || 5432,
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'Aa0661103',
-      database: process.env.DB_DATABASE || 'postgres',
-      entities: [User],
-      synchronize: true,
-    }),
+    MongooseModule.forRoot(
+      'mongodb+srv://back_admin:back_admin@nest.9tbh0dx.mongodb.net/?retryWrites=true&w=majority',
+    ),
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
   ],
   controllers: [AppController],
