@@ -5,10 +5,14 @@ import {
   UseGuards,
   Get,
   Request,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
-import { ResetPasswordAuth } from './dto/reset-password-auth';
+import {
+  ResetPasswordAuth,
+  ResetPasswordConfirmAuth,
+} from './dto/reset-password-auth';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { AuthGuard } from './auth.guard';
 
@@ -33,5 +37,11 @@ export class AuthController {
   @Post('reset-password')
   resetPassword(@Body() resetPasswordAuthDto: ResetPasswordAuth) {
     return this.authService.resetPassword(resetPasswordAuthDto);
+  }
+  @Patch('reset-password')
+  resetPasswordConfirm(
+    @Body() resetPasswordConfirmedDto: ResetPasswordConfirmAuth,
+  ) {
+    return this.authService.resetPasswordConfirm(resetPasswordConfirmedDto);
   }
 }
