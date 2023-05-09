@@ -6,3 +6,13 @@ export class ResetPasswordAuth {
   @IsEmail()
   public email: string;
 }
+
+export class ResetPasswordConfirmAuth extends ResetPasswordAuth {
+  @IsString()
+  @IsNotEmpty()
+  public password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public hash: string;
+}
