@@ -6,11 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AccessTokenStrategy } from './strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
   imports: [
+    PrismaModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'test',

@@ -4,8 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import * as process from 'node:process';
 
 @Module({
   imports: [
@@ -15,30 +14,8 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
       isGlobal: true,
     }),
     MongooseModule.forRoot(
-      `mongodb+srv://${process.env.USER_DB_NAME}:${process.env.USER_DB_PASSWORD}@nest.9tbh0dx.mongodb.net/?retryWrites=true&w=majority`,
+      `mongodb+srv://${process.env.USER_DB_NAME}:${process.env.USER_DB_PASSWORD}@cluster0.0fxwc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`,
     ),
-    MailerModule.forRoot({
-      transport: {
-        host: 'smtp.gmail.com',
-        port: 465,
-        name: 'firsov.d',
-        secure: true,
-        auth: {
-          user: 'xxlaimxx1999@gmail.com',
-          pass: 'ajklixenundrqgpo',
-        },
-      },
-      defaults: {
-        from: '"nest-modules" <modules@nestjs.com>',
-      },
-      template: {
-        dir: __dirname + '/templates',
-        adapter: new PugAdapter(),
-        options: {
-          strict: true,
-        },
-      },
-    }),
   ],
   controllers: [AppController],
   providers: [AppService],

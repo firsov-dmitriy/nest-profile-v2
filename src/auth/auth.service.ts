@@ -11,7 +11,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { compare, genSalt, hash, hashSync } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { MailerService } from '@nestjs-modules/mailer';
+import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -20,56 +21,48 @@ export class AuthService {
     private usersRepository: Model<User>,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private readonly mailerService: MailerService,
+    private prisma: PrismaService,
   ) {}
 
   async register(registerAuthDto: RegisterAuthDto) {
-    // Check if user exists with given email
-    const existingUser = await this.usersRepository.findOne({
-      email: registerAuthDto.email,
+    const existingUserPrisma = await this.prisma.user.findUnique({
+      where: { email: registerAuthDto.email },
     });
 
-    // If user does not exist, create a new user
-    if (!existingUser) {
+    if (!existingUserPrisma) {
       const password = await this.cryptPassword(registerAuthDto.password);
 
       const salt = await genSalt();
       const hash = hashSync(registerAuthDto.email, salt);
-      const href = `https://react-redux-movie.vercel.app/confirm-password?hash=${hash}&email=${registerAuthDto.email}`;
       const newUser: User = {
         ...registerAuthDto,
         password,
         confirmed: false,
         confirmedHash: hash,
       };
-      const createdUser = await this.usersRepository.create(newUser);
+      const createdUser = await this.prisma.user.create({
+        data: {
+          name: registerAuthDto.name,
+          email: registerAuthDto.email,
+          password: password,
+        },
+      });
 
-      // Get tokens and update refresh token
       const tokens = await this.getTokens(createdUser.id, registerAuthDto.name);
-      await this.updateRefreshToken(createdUser.id, tokens.refreshToken);
+      await this.updateRefreshToken({
+        ...createdUser,
+        accessToken: tokens.accessToken,
+      });
 
-      // Generate hash and send confirmation email
-
-      const emailOptions = {
-        to: createdUser.email,
-        from: 'no-replay@firsov.com',
-        subject: 'Password confirmed',
-        text: 'Password confirmed!',
-        html: `<b><a href=${href}>Для подтверждения пароля перейдите по ссылке!</a></b>`,
-      };
-      await this.mailerService.sendMail(emailOptions);
-
-      // Return user details and tokens
       return { name: createdUser.name, email: createdUser.email, ...tokens };
     }
 
-    // Return message if user already exists
     return 'This user already exists';
   }
 
   async login(loginAuthDto: LoginAuthDto) {
-    const user = await this.usersRepository.findOne({
-      email: loginAuthDto.email,
+    const user = await this.prisma.user.findUnique({
+      where: { email: loginAuthDto.email },
     });
     const isPasswordCorrect = await this.checkPassword(
       loginAuthDto.password,
@@ -92,13 +85,13 @@ export class AuthService {
       );
 
       const href = `https://react-redux-movie.vercel.app/confirm-password?hash=${hashed}&email=${email}`;
-      await this.mailerService.sendMail({
-        to: email,
-        from: 'no-replay@firsov.com',
-        subject: 'Password Reset',
-        text: 'You try to reset password!',
-        html: `<b><a href=${href}>Перейдите по ссылке для восстановления пароля!</a></b>`,
-      });
+      // await this.mailerService.sendMail({
+      //   to: email,
+      //   from: 'no-replay@firsov.com',
+      //   subject: 'Password Reset',
+      //   text: 'You try to reset password!',
+      //   html: `<b><a href=${href}>Перейдите по ссылке для восстановления пароля!</a></b>`,
+      // });
     } catch (error) {
       throw new Error(error);
     }
@@ -153,7 +146,10 @@ export class AuthService {
     }
   }
 
-  private async updateRefreshToken(userId: string, refreshToken: string) {
-    await this.usersRepository.findByIdAndUpdate(userId, { refreshToken });
+  private async updateRefreshToken(data: Prisma.UserUpdateInput) {
+    await this.prisma.user.update({
+      where: { id: data.id as string },
+      data: data,
+    });
   }
 }
