@@ -32,29 +32,23 @@ export class AuthService {
     if (!existingUserPrisma) {
       const password = await this.cryptPassword(registerAuthDto.password);
 
-      const salt = await genSalt();
-      const hash = hashSync(registerAuthDto.email, salt);
-      const newUser: User = {
-        ...registerAuthDto,
-        password,
-        confirmed: false,
-        confirmedHash: hash,
-      };
       const createdUser = await this.prisma.user.create({
         data: {
-          name: registerAuthDto.name,
-          email: registerAuthDto.email,
+          ...registerAuthDto,
           password: password,
         },
       });
 
-      const tokens = await this.getTokens(createdUser.id, registerAuthDto.name);
+      const tokens = await this.getTokens(
+        createdUser.id,
+        registerAuthDto.email,
+      );
       await this.updateRefreshToken({
         ...createdUser,
         accessToken: tokens.accessToken,
       });
 
-      return { name: createdUser.name, email: createdUser.email, ...tokens };
+      return { ...registerAuthDto, ...tokens };
     }
 
     return 'This user already exists';
@@ -69,7 +63,7 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordCorrect) throw new UnauthorizedException();
-    const payload = { name: user.name, sub: user.id, email: user.email };
+    const payload = { ...user, sub: user.id };
     return { access_token: this.jwtService.sign(payload) };
   }
 
@@ -83,15 +77,6 @@ export class AuthService {
           restorePasswordHash: hashed,
         },
       );
-
-      const href = `https://react-redux-movie.vercel.app/confirm-password?hash=${hashed}&email=${email}`;
-      // await this.mailerService.sendMail({
-      //   to: email,
-      //   from: 'no-replay@firsov.com',
-      //   subject: 'Password Reset',
-      //   text: 'You try to reset password!',
-      //   html: `<b><a href=${href}>Перейдите по ссылке для восстановления пароля!</a></b>`,
-      // });
     } catch (error) {
       throw new Error(error);
     }
@@ -106,9 +91,9 @@ export class AuthService {
   private async checkPassword(password: string, hash: string) {
     return await compare(password, hash);
   }
-  private async getTokens(userId: string, username: string) {
+  private async getTokens(userId: string, email: string) {
     const accessToken = await this.jwtService.signAsync(
-      { userId, username },
+      { userId, email },
       {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
         expiresIn: '15m',
@@ -116,7 +101,7 @@ export class AuthService {
     );
 
     const refreshToken = await this.jwtService.signAsync(
-      { userId, username },
+      { userId, email },
       {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
         expiresIn: '7d',

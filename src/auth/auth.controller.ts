@@ -15,16 +15,18 @@ import {
 } from './dto/reset-password-auth';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { AuthGuard } from './auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Авторизация')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
+  @Post('sign-up')
   create(@Body() createAuthDto: RegisterAuthDto) {
     return this.authService.register(createAuthDto);
   }
-  @Post('login')
+  @Post('sign-in')
   login(@Body() loginAuthDto: LoginAuthDto) {
     return this.authService.login(loginAuthDto);
   }

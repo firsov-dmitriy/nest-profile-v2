@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -16,9 +17,28 @@ datasource db {
 model User {
   id    String  @id @default(uuid())
   email String  @unique
-  name  String?
+  firstName String?
+  middleName String?
+  lastName String?
   password String
   refreshToken String?
   accessToken String?
+  role Role @default(USER)
+  posts Post[]
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  title String
+  text String
+  createdAt DateTime @default(now())
+  updatedAt  DateTime   @updatedAt
+  published  Boolean    @default(false)
+  authorId  String
+  author User @relation(fields: [authorId], references: [id])
+}
