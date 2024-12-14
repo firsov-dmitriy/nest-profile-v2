@@ -36,7 +36,10 @@ export class PostsService {
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+    return this.prismaService.post.update({
+      where: { id },
+      data: updatePostDto,
+    });
   }
 
   remove(id: number) {

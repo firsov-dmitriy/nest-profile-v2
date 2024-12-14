@@ -13,8 +13,9 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthGuard } from '../auth/auth.guard';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { Prisma } from '@prisma/client';
 
 @ApiTags('Посты')
 @Controller('posts')
@@ -27,6 +28,10 @@ export class PostsController {
     return this.postsService.create(createPostDto, req);
   }
 
+  @ApiResponse({
+    status: '2XX',
+    description: 'Posts lists',
+  })
   @Get()
   findAll() {
     return this.postsService.findAll();
