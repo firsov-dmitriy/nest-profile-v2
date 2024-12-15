@@ -13,11 +13,17 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthGuard } from '../auth/auth.guard';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Prisma } from '@prisma/client';
+import { CommonResponseSchema, DataType, MyDataType } from '../types/DataType';
 
-@ApiTags('Посты')
+@ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
@@ -28,9 +34,10 @@ export class PostsController {
     return this.postsService.create(createPostDto, req);
   }
 
-  @ApiResponse({
-    status: '2XX',
-    description: 'Posts lists',
+  @ApiOkResponse({
+    status: 200,
+    description: 'Posts list',
+    schema: CommonResponseSchema(UpdatePostDto),
   })
   @Get()
   findAll() {
