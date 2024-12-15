@@ -15,13 +15,19 @@ import {
 } from './dto/reset-password-auth';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { AuthGuard } from './auth.guard';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { CommonResponseSchema } from '../types/DataType';
+import { SignUpResponse } from './response/sign-up.response';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
+  @ApiOkResponse({
+    status: 201,
+    description: 'Welcome! You registration',
+    schema: CommonResponseSchema(SignUpResponse),
+  })
   @Post('sign-up')
   create(@Body() createAuthDto: RegisterAuthDto) {
     return this.authService.register(createAuthDto);

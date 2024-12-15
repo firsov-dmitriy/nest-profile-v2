@@ -1,17 +1,11 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum Role {
   ADMIN = 'ADMIN',
   USER = 'USER',
 }
-export class RegisterAuthDto {
+export class SignUpResponse {
   @ApiPropertyOptional({ type: String })
   public firstName?: string;
 
@@ -34,4 +28,14 @@ export class RegisterAuthDto {
 
   @ApiPropertyOptional({ enum: [Role.USER, Role.ADMIN], enumName: 'Role' })
   public role?: Role;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  public accessToken: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  public refreshToken: string;
 }
