@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
-import { Optional } from '@nestjs/common';
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreatePostDto {
   @ApiProperty()
@@ -14,9 +14,11 @@ export class CreatePostDto {
   text: string;
 
   @ApiProperty()
-  @Optional()
+  @IsNotEmpty()
+  @Transform(({ value }) => value === 'true' || value === true)
   published: boolean;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: true })
-  file: Express.Multer.File;
+  @ApiProperty({ type: 'string', format: 'uri' })
+  @IsUrl()
+  imageUrl: string;
 }
