@@ -7,23 +7,29 @@ import { PrismaService } from '../prisma/prisma.service';
 
 import { TokenService } from '../auth/token.service';
 import { Request } from 'express';
+import { AuthService } from '../auth/auth.service';
+import { VercelBlobService } from '../vercel-blob/vercel-blob.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     private prismaService: PrismaService,
-    private jwtService: JwtService,
-    private tokenService: TokenService,
+    private authService: AuthService,
+    private vercelBlobService: VercelBlobService,
   ) {}
   async create(createPostDto: CreatePostDto, request: Request) {
-    const accessToken = this.tokenService.extractTokenFromHeader(request);
-    const payload = this.jwtService.decode(accessToken) as { email: string };
-    const email = payload.email;
-    const author = await this.prismaService.user.findUnique({
-      where: { email },
-    });
+    // const author = await this.authService.validateUser(request);
+    console.log(createPostDto);
+
+    const { file, ...createPost } = createPostDto;
+
+    const { url: imageUrl } = await this.vercelBlobService.create(request.file);
     return this.prismaService.post.create({
-      data: { ...createPostDto, authorId: author.id },
+      data: {
+        ...createPost,
+        authorId: '0580b659-04ba-4812-8b03-f10154452718',
+        imageUrl,
+      },
     });
   }
 

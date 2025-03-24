@@ -25,6 +25,8 @@ model User {
   accessToken String?
   role Role @default(USER)
   posts Post[]
+  products Product[]
+  cart Cart?
 }
 
 enum Role {
@@ -41,4 +43,39 @@ model Post {
   published  Boolean    @default(false)
   authorId  String
   author User @relation(fields: [authorId], references: [id])
+  imageUrl String?
+}
+
+model Product {
+  id  Int @id @default(autoincrement())
+  name String
+  description String
+  createdAt DateTime @default(now())
+  published Boolean    @default(false)
+  authorId  String
+  price Float
+  cartItems   CartItem[]
+  author User @relation(fields: [authorId], references: [id])
+}
+
+
+
+model Cart {
+  id  String  @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+  items CartItem[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model CartItem {
+  id        Int       @id @default(autoincrement())
+  cart      Cart      @relation(fields: [cartId], references: [id])
+  cartId    String
+  product   Product   @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int       @default(1)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }

@@ -5,7 +5,13 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PostsModule } from './posts/posts.module';
+import { ProductsModule } from './products/products.module';
 import * as process from 'node:process';
+import { AwsSdkModule } from 'nest-aws-sdk';
+import { SharedIniFileCredentials } from 'aws-sdk';
+import { VercelBlobModule } from './vercel-blob/vercel-blob.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseWrapperInterceptor } from '../common/interceptors/response.wrapper.interceptor';
 
 @Module({
   imports: [
@@ -18,8 +24,30 @@ import * as process from 'node:process';
       `mongodb+srv://${process.env.USER_DB_NAME}:${process.env.USER_DB_PASSWORD}@cluster0.0fxwc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`,
     ),
     PostsModule,
+    ProductsModule,
+    AwsSdkModule.forRootAsync({
+      defaultServiceOptions: {
+        useFactory: () => {
+          if (process.env.LAMBDA_TASK_ROOT && process.env.AWS_EXECUTION_ENV) {
+            return {};
+          }
+          return {
+            credentials: new SharedIniFileCredentials({
+              profile: 'personal',
+            }),
+          };
+        },
+      },
+    }),
+    VercelBlobModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseWrapperInterceptor,
+    },
+  ],
 })
 export class AppModule {}

@@ -42,3 +42,19 @@ export const CommonResponseSchema = (model: any) => ({
     },
   },
 });
+
+export class MetaDto {
+  @ApiProperty({ example: '2024-12-15T12:34:56.789Z' })
+  timestamp: string;
+
+  @ApiProperty({ example: 200 })
+  statusCode: number;
+}
+
+export class ApiResponseDto<T> {
+  @ApiProperty({ isArray: true })
+  data: T;
+
+  @ApiProperty({ type: MetaDto })
+  meta: MetaDto;
+}

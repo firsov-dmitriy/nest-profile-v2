@@ -15,6 +15,8 @@ export class CreatePostDto {
 
   @ApiProperty()
   @Optional()
-  @IsBoolean()
   published: boolean;
+
+  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  file: Express.Multer.File;
 }

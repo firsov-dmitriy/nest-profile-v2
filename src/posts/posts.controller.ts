@@ -8,29 +8,43 @@ import {
   Delete,
   UseGuards,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthGuard } from '../auth/auth.guard';
-import {
-  ApiOkResponse,
-  ApiResponse,
-  ApiTags,
-  getSchemaPath,
-} from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { Prisma } from '@prisma/client';
-import { CommonResponseSchema, DataType, MyDataType } from '../types/DataType';
+import { CommonResponseSchema } from '../types/DataType';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        published: { type: 'boolean' },
+        title: { type: 'string' },
+        text: { type: 'string' },
+
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
   create(@Body() createPostDto: CreatePostDto, @Req() req: Request) {
+    console.log(createPostDto);
     return this.postsService.create(createPostDto, req);
   }
 

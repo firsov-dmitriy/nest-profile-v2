@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import {
   ResetPasswordAuth,
@@ -13,6 +18,8 @@ import { compare, genSalt, hash, hashSync } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { TokenService } from './token.service';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +29,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private prisma: PrismaService,
+    private tokenService: TokenService,
   ) {}
 
   async register(registerAuthDto: RegisterAuthDto) {
@@ -62,9 +70,13 @@ export class AuthService {
       loginAuthDto.password,
       user.password,
     );
-    if (!isPasswordCorrect) throw new UnauthorizedException();
-    const payload = { ...user, sub: user.id };
-    return { access_token: this.jwtService.sign(payload) };
+    if (!isPasswordCorrect)
+      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND, {
+        description: 'Не верный пароль или емайл',
+      });
+    const payload = { sub: user.id, email: user.email };
+
+    return { accessToken: this.jwtService.sign(payload, { expiresIn: '15m' }) };
   }
 
   async resetPassword({ email }: ResetPasswordAuth) {
@@ -136,5 +148,22 @@ export class AuthService {
       where: { id: data.id as string },
       data: data,
     });
+  }
+  async validateUser(request: Request) {
+    const accessToken = this.tokenService.extractTokenFromHeader(request);
+    const payload = this.jwtService.decode(accessToken) as { email: string };
+    if (!payload?.email) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { email: payload.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
   }
 }

@@ -1,41 +1,40 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { MetaDto } from '../../types/DataType';
 
 export enum Role {
   ADMIN = 'ADMIN',
   USER = 'USER',
 }
-export class SignUpResponse {
-  @ApiPropertyOptional({ type: String })
+class SignUpResponseData {
+  @ApiProperty({ type: String, example: 'Name' })
   public firstName?: string;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiProperty({ type: String, example: 'Name' })
   public middleName?: string;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiProperty({ type: String, example: 'Name' })
   public lastName?: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @IsEmail()
+  @ApiProperty({ type: String, example: 'test@test.com' })
   public email: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   public password: string;
 
-  @ApiPropertyOptional({ enum: [Role.USER, Role.ADMIN], enumName: 'Role' })
+  @ApiProperty({ enum: [Role.USER, Role.ADMIN], enumName: 'Role' })
   public role?: Role;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   public accessToken: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   public refreshToken: string;
+}
+
+export class SignUpResponse {
+  @ApiProperty()
+  data: SignUpResponseData;
+
+  @ApiProperty({ type: MetaDto })
+  meta: MetaDto;
 }
