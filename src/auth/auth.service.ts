@@ -55,8 +55,9 @@ export class AuthService {
         ...createdUser,
         accessToken: tokens.accessToken,
       });
-
-      return { ...registerAuthDto, ...tokens };
+      const userWithoutPassword = Object.assign({}, createdUser);
+      delete userWithoutPassword.password;
+      return { ...userWithoutPassword, ...tokens };
     }
 
     return 'This user already exists';
@@ -74,9 +75,10 @@ export class AuthService {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND, {
         description: 'Не верный пароль или емайл',
       });
-    const payload = { sub: user.id, email: user.email };
 
-    return { accessToken: this.jwtService.sign(payload, { expiresIn: '15m' }) };
+    const tokens = await this.getTokens(user.id, user.email);
+
+    return { ...tokens };
   }
 
   async resetPassword({ email }: ResetPasswordAuth) {

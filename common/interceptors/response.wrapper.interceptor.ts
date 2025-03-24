@@ -11,13 +11,15 @@ import { map } from 'rxjs/operators';
 export class ResponseWrapperInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data) => ({
-        data, // Основные данные
-        meta: {
-          timestamp: new Date().toISOString(), // Пример мета-информации
-          statusCode: context.switchToHttp().getResponse().statusCode,
-        },
-      })),
+      map((data) => {
+        return {
+          data, // Основные данные
+          meta: {
+            timestamp: new Date().toISOString(), // Пример мета-информации
+            statusCode: context.switchToHttp().getResponse().statusCode,
+          },
+        };
+      }),
     );
   }
 }
