@@ -36,7 +36,7 @@ export class AuthService {
     const existingUserPrisma = await this.prisma.user.findUnique({
       where: { email: registerAuthDto.email },
     });
-
+    console.log(registerAuthDto);
     if (!existingUserPrisma) {
       const password = await this.cryptPassword(registerAuthDto.password);
 
@@ -55,8 +55,10 @@ export class AuthService {
         ...createdUser,
         accessToken: tokens.accessToken,
       });
+
       const userWithoutPassword = Object.assign({}, createdUser);
       delete userWithoutPassword.password;
+      console.log(userWithoutPassword);
       return { ...userWithoutPassword, ...tokens };
     }
 
@@ -76,9 +78,12 @@ export class AuthService {
         description: 'Не верный пароль или емайл',
       });
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const payload = { sub: user.id, email: user.email };
 
-    return { ...tokens };
+    return {
+      accessToken: this.jwtService.sign(payload, { expiresIn: '15m' }),
+      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+    };
   }
 
   async resetPassword({ email }: ResetPasswordAuth) {

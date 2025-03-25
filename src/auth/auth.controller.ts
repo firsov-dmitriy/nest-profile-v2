@@ -16,7 +16,12 @@ import {
 } from './dto/reset-password-auth';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { AuthGuard } from './auth.guard';
-import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SignUpResponse } from './response/sign-up.response';
 import { SignInResponse } from './response/sign-in.response';
 
@@ -24,7 +29,7 @@ import { SignInResponse } from './response/sign-in.response';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  @ApiOkResponse({
+  @ApiResponse({
     status: HttpStatus.CREATED,
     type: SignUpResponse,
     description: 'Welcome! You registration',
@@ -35,6 +40,7 @@ export class AuthController {
   })
   @Post('sign-up')
   create(@Body() createAuthDto: RegisterAuthDto) {
+    console.log(createAuthDto);
     return this.authService.register(createAuthDto);
   }
   @ApiOkResponse({

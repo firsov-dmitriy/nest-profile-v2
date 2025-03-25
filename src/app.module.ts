@@ -9,7 +9,7 @@ import { ProductsModule } from './products/products.module';
 import * as process from 'node:process';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { SharedIniFileCredentials } from 'aws-sdk';
-import { VercelBlobModule } from './vercel-blob/vercel-blob.module';
+import { FilesModule } from './files/files.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseWrapperInterceptor } from '../common/interceptors/response.wrapper.interceptor';
 
@@ -39,7 +39,7 @@ import { ResponseWrapperInterceptor } from '../common/interceptors/response.wrap
         },
       },
     }),
-    VercelBlobModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [

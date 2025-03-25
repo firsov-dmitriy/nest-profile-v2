@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MetaDto } from '../../types/DataType';
 
-class CreatePostResponseData {
+export class CreatePostResponseData {
   @ApiProperty()
   id: number;
 
@@ -21,7 +21,7 @@ class CreatePostResponseData {
   published: boolean;
 
   @ApiProperty()
-  imageUrl: Express.Multer.File;
+  imageUrl: string;
 }
 
 export class CreatePostResponse {

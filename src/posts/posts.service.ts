@@ -6,14 +6,12 @@ import { PrismaService } from '../prisma/prisma.service';
 
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
-import { VercelBlobService } from '../vercel-blob/vercel-blob.service';
 
 @Injectable()
 export class PostsService {
   constructor(
     private prismaService: PrismaService,
     private authService: AuthService,
-    private vercelBlobService: VercelBlobService,
   ) {}
   async create(createPostDto: CreatePostDto, request: Request) {
     const author = await this.authService.validateUser(request);
@@ -36,13 +34,17 @@ export class PostsService {
     return this.prismaService.post.findUnique({ where: { id } });
   }
 
-  async update(id: number, updatePostDto: UpdatePostDto) {
+  async update(id: number, updatePostDto: UpdatePostDto, request: Request) {
     const existingPost = await this.prismaService.post.findUnique({
       where: { id },
     });
+    const author = await this.authService.validateUser(request);
 
     if (!existingPost) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+    if (author.id !== existingPost.authorId) {
+      throw new HttpException('BAD_REQUEST', HttpStatus.BAD_REQUEST);
     }
     const imageUrl = updatePostDto.imageUrl || existingPost.imageUrl;
 

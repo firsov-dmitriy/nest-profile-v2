@@ -18,7 +18,9 @@ import { AuthGuard } from '../auth/auth.guard';
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CommonResponseSchema } from '../types/DataType';
-import { CreatePostResponse } from './response/create.response';
+import { CreatePostResponse } from './response/create-posts.response';
+import { GetPostResponse } from './response/get-posts.response';
+import { GetInfoPostResponse } from './response/get-info-posts.response';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -39,13 +41,17 @@ export class PostsController {
   @ApiOkResponse({
     status: 200,
     description: 'Posts list',
-    schema: CommonResponseSchema(UpdatePostDto),
+    type: GetPostResponse,
   })
   @Get()
   findAll() {
     return this.postsService.findAll();
   }
-
+  @ApiOkResponse({
+    status: 200,
+    description: 'Posts Info',
+    type: GetInfoPostResponse,
+  })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(+id);
@@ -57,8 +63,12 @@ export class PostsController {
     type: CreatePostResponse,
     description: 'Updated Post',
   })
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  update(
+    @Param('id') id: string,
+    @Body() updatePostDto: UpdatePostDto,
+    @Req() req: Request,
+  ) {
+    return this.postsService.update(+id, updatePostDto, req);
   }
 
   @Delete(':id')

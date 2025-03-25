@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { del, list, put } from '@vercel/blob';
 
 @Injectable()
-export class VercelBlobService {
+export class FilesService {
   async create(file: Express.Multer.File) {
     return await put(file.originalname, file.buffer, {
       access: 'public',
@@ -15,7 +15,12 @@ export class VercelBlobService {
   }
 
   async remove(url: string) {
-    console.log(del(url));
-    return await del(url);
+    const list = await this.findAll();
+    if (!list.blobs.find((file) => file.url === url)) {
+      throw new NotFoundException(`File not found`);
+    }
+
+    await del(url);
+    return 'OK';
   }
 }

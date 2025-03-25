@@ -1,5 +1,12 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export class CreateProductDto {
   @ApiProperty()
@@ -16,6 +23,12 @@ export class CreateProductDto {
   @IsNumber()
   price: number;
 
-  @ApiPropertyOptional()
-  published?: boolean;
+  @ApiProperty()
+  @IsBoolean()
+  published: boolean;
+
+  @ApiProperty()
+  @IsUrl()
+  @IsOptional()
+  imageUrl: string;
 }

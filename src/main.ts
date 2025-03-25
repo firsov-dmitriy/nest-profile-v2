@@ -24,6 +24,7 @@ async function bootstrap() {
   const swaggerDocument = SwaggerModule.createDocument(app, configSwagger);
 
   SwaggerModule.setup('api/swagger', app, swaggerDocument, {
+    jsonDocumentUrl: 'api/docs',
     customSiteTitle: 'Backend Generator',
     customfavIcon: 'https://avatars.githubusercontent.com/u/6936373?s=200&v=4',
     customJs: [
