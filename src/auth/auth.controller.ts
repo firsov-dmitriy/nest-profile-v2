@@ -2,11 +2,11 @@ import {
   Controller,
   Post,
   Body,
-  UseGuards,
   Get,
-  Request,
   Patch,
   HttpStatus,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
@@ -15,7 +15,6 @@ import {
   ResetPasswordConfirmAuth,
 } from './dto/reset-password-auth';
 import { LoginAuthDto } from './dto/login-auth.dto';
-import { AuthGuard } from './auth.guard';
 import {
   ApiBadRequestResponse,
   ApiOkResponse,
@@ -24,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { SignUpResponse } from './response/sign-up.response';
 import { SignInResponse } from './response/sign-in.response';
+import { AuthGuard } from './auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -57,9 +57,14 @@ export class AuthController {
     return this.authService.login(loginAuthDto);
   }
   @UseGuards(AuthGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SignUpResponse,
+    description: 'Welcome! You registration',
+  })
   @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  getProfile(@Req() req) {
+    return this.authService.getProfile(req);
   }
 
   @Post('reset-password')

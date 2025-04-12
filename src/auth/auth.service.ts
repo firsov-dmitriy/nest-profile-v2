@@ -58,7 +58,6 @@ export class AuthService {
 
       const userWithoutPassword = Object.assign({}, createdUser);
       delete userWithoutPassword.password;
-      console.log(userWithoutPassword);
       return { ...userWithoutPassword, ...tokens };
     }
 
@@ -86,6 +85,9 @@ export class AuthService {
     };
   }
 
+  async getProfile(request: Request) {
+    return await this.validateUser(request);
+  }
   async resetPassword({ email }: ResetPasswordAuth) {
     const salt = await genSalt();
     const hashed = await hash(email, salt);

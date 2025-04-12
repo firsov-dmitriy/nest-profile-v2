@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   Req,
-  UseInterceptors,
   HttpStatus,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
@@ -17,7 +16,6 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { CommonResponseSchema } from '../types/DataType';
 import { CreatePostResponse } from './response/create-posts.response';
 import { GetPostResponse } from './response/get-posts.response';
 import { GetInfoPostResponse } from './response/get-info-posts.response';

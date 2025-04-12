@@ -27,6 +27,7 @@ import { TokenService } from './token.service';
       },
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    AuthModule,
   ],
   exports: [TokenService, AuthService],
 })
