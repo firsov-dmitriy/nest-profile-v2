@@ -21,8 +21,6 @@ model User {
   middleName String?
   lastName String?
   password String
-  refreshToken String?
-  accessToken String?
   role Role @default(USER)
   posts Post[]
   products Product[]

@@ -7,8 +7,10 @@ import {
   HttpStatus,
   Req,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Response, Request } from 'express';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import {
   ResetPasswordAuth,
@@ -24,6 +26,10 @@ import {
 import { SignUpResponse } from './response/sign-up.response';
 import { SignInResponse } from './response/sign-in.response';
 import { AuthGuard } from './auth.guard';
+import { UnauthorizedResponse } from './response/unauthorized.response';
+import { Public } from '../public/decorator';
+import { SuccessResponse } from './response/successResponse';
+import { InvalidTokenResponse } from './response/invalid-token.response';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -53,8 +59,12 @@ export class AuthController {
     description: 'Bad request',
   })
   @Post('sign-in')
-  login(@Body() loginAuthDto: LoginAuthDto) {
-    return this.authService.login(loginAuthDto);
+  @Public()
+  login(
+    @Body() loginAuthDto: LoginAuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.login(loginAuthDto, res);
   }
   @UseGuards(AuthGuard)
   @ApiResponse({
@@ -62,11 +72,39 @@ export class AuthController {
     type: SignUpResponse,
     description: 'Welcome! You registration',
   })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    type: UnauthorizedResponse,
+    description: 'Unauthorized',
+  })
   @Get('profile')
   getProfile(@Req() req) {
-    return this.authService.getProfile(req);
+    return req.user;
   }
 
+  @Public()
+  @Post('refresh')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponse,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    type: InvalidTokenResponse,
+    description: 'Expired refresh token',
+  })
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    return this.authService.refresh(req, res);
+  }
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SuccessResponse,
+  })
+  async logout(@Res() res: Response) {
+    return this.authService.logout(res);
+  }
   @Post('reset-password')
   resetPassword(@Body() resetPasswordAuthDto: ResetPasswordAuth) {
     return this.authService.resetPassword(resetPasswordAuthDto);

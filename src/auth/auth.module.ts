@@ -21,7 +21,7 @@ import { TokenService } from './token.service';
     PrismaModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET || 'test',
+      secret: process.env.JWT_SECRET,
       signOptions: {
         expiresIn: parseInt(process.env.JWT_EXPIRES_IN) || '1800s',
       },
