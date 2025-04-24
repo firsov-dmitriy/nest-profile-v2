@@ -17,7 +17,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreatePostResponse } from './response/create-posts.response';
-import { GetPostResponse } from './response/get-posts.response';
+import { Posts } from './response/get-posts.response';
 import { GetInfoPostResponse } from './response/get-info-posts.response';
 
 @ApiTags('Posts')
@@ -39,7 +39,7 @@ export class PostsController {
   @ApiOkResponse({
     status: 200,
     description: 'Posts list',
-    type: GetPostResponse,
+    type: Posts,
   })
   @Get()
   findAll() {

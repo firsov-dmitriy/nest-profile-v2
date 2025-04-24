@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { MetaDto } from '../../types/DataType';
 import { CreatePostResponseData } from './create-posts.response';
 
-export class GetPostResponse {
+export class Posts {
   @ApiProperty({ type: [CreatePostResponseData] })
   data: CreatePostResponseData;
 
