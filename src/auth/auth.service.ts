@@ -40,6 +40,7 @@ export class AuthService {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerAuthDto.email },
     });
+    console.log(existingUser);
     if (existingUser)
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
 
@@ -56,10 +57,9 @@ export class AuthService {
         lastName: true,
         middleName: true,
         role: true,
+        id: true,
       },
     });
-
-    await this.updateRefreshToken(createdUser);
 
     return createdUser;
   }
@@ -75,7 +75,7 @@ export class AuthService {
       !(await this.checkPassword(loginAuthDto.password, user.password))
     ) {
       throw new HttpException(
-        'Invalid email or password',
+        'Непрвильный пароль или e-майл',
         HttpStatus.UNAUTHORIZED,
       );
     }

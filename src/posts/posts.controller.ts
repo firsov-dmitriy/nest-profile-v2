@@ -19,6 +19,7 @@ import { Request } from 'express';
 import { CreatePostResponse } from './response/create-posts.response';
 import { Posts } from './response/get-posts.response';
 import { GetInfoPostResponse } from './response/get-info-posts.response';
+import { Public } from '../public/decorator';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -42,6 +43,7 @@ export class PostsController {
     type: Posts,
   })
   @Get()
+  @Public()
   findAll() {
     return this.postsService.findAll();
   }
@@ -51,6 +53,7 @@ export class PostsController {
     type: GetInfoPostResponse,
   })
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(+id);
   }

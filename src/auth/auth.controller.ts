@@ -22,6 +22,7 @@ import {
   ApiOkResponse,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { SignUpResponse } from './response/sign-up.response';
 import { SignInResponse } from './response/sign-in.response';
@@ -40,13 +41,13 @@ export class AuthController {
     type: SignUpResponse,
     description: 'Welcome! You registration',
   })
-  @ApiBadRequestResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiUnauthorizedResponse({
+    status: HttpStatus.UNAUTHORIZED,
     description: 'Bad request',
+    type: UnauthorizedResponse,
   })
   @Post('sign-up')
   create(@Body() createAuthDto: RegisterAuthDto) {
-    console.log(createAuthDto);
     return this.authService.register(createAuthDto);
   }
   @ApiOkResponse({
@@ -54,9 +55,10 @@ export class AuthController {
     type: SignInResponse,
     description: 'Welcome!',
   })
-  @ApiBadRequestResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiUnauthorizedResponse({
+    status: HttpStatus.UNAUTHORIZED,
     description: 'Bad request',
+    type: UnauthorizedResponse,
   })
   @Post('sign-in')
   @Public()
@@ -66,6 +68,7 @@ export class AuthController {
   ) {
     return this.authService.login(loginAuthDto, res);
   }
+
   @UseGuards(AuthGuard)
   @ApiResponse({
     status: HttpStatus.OK,
@@ -79,6 +82,7 @@ export class AuthController {
   })
   @Get('profile')
   getProfile(@Req() req) {
+    console.log('REQ.USER:', req.user);
     return req.user;
   }
 

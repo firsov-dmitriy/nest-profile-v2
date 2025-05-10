@@ -27,14 +27,12 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
 
     const token = request.cookies?.accessToken;
-
     if (!token) {
       throw new UnauthorizedException('Токен не найден');
     }
 
     try {
       const payload = await this.tokenService.verifyRefreshToken(token);
-
       const user = await this.prisma.user.findUnique({
         where: { email: payload.email },
         select: {
@@ -51,7 +49,7 @@ export class AuthGuard implements CanActivate {
       }
 
       request.user = user;
-      console.log('test');
+
       return true;
     } catch (err) {
       throw new UnauthorizedException('Недействительный токен');

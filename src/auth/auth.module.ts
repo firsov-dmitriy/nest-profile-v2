@@ -8,6 +8,7 @@ import { AccessTokenStrategy } from './strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
 import { TokenService } from './token.service';
+import { AuthGuard } from './auth.guard';
 
 @Module({
   controllers: [AuthController],
@@ -16,6 +17,7 @@ import { TokenService } from './token.service';
     AccessTokenStrategy,
     RefreshTokenStrategy,
     TokenService,
+    AuthGuard,
   ],
   imports: [
     PrismaModule,
